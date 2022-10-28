@@ -780,3 +780,17 @@ phosh_top_panel_get_state (PhoshTopPanel *self)
 
   return self->state;
 }
+
+/**
+ * phosh_top_panel_get_height:
+ * @self: The panel
+ *
+ * Returns: The top panels height
+ */
+guint
+phosh_top_panel_get_height (PhoshTopPanel *self)
+{
+  g_return_val_if_fail (PHOSH_IS_TOP_PANEL (self), PHOSH_TOP_PANEL_STATE_FOLDED);
+
+  return PHOSH_TOP_PANEL_HEIGHT;
+}

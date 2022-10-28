@@ -33,3 +33,4 @@ void               phosh_top_panel_toggle_fold (PhoshTopPanel *self);
 void               phosh_top_panel_fold (PhoshTopPanel *self);
 void               phosh_top_panel_unfold (PhoshTopPanel *self);
 PhoshTopPanelState phosh_top_panel_get_state (PhoshTopPanel *self);
+guint              phosh_top_panel_get_height (PhoshTopPanel *self);
