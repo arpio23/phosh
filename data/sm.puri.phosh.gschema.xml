@@ -60,6 +60,14 @@
         When automatic high contrast is enabled this defines the light level at which to switch.
       </description>
     </key>
+    <key name="top-panel-offset" type="u">
+      <default>0</default>
+      <summary>The offset of the top panel</summary>
+      <description>
+        The amount o pixels the panel at the top of the screen is shifted downwards to avoid
+        notches.
+      </description>
+    </key>
   </schema>
   <schema id="sm.puri.phosh.lockscreen"
           path="/sm/puri/phosh/lockscreen/">

@@ -84,6 +84,7 @@
 #include "wwan/phosh-wwan-backend.h"
 
 #define WWAN_BACKEND_KEY "wwan-backend"
+#define TOP_PANEL_OFFSET_KEY "top-panel-offset"
 
 /**
  * SECTION:shell
@@ -270,6 +271,26 @@ on_home_state_changed (PhoshShell *self, GParamSpec *pspec, PhoshHome *home)
 }
 
 
+static guint
+calc_top_panel_height (PhoshShell *self)
+{
+  PhoshShellPrivate *priv;
+  PhoshMonitor *monitor;
+  int panel_height = PHOSH_TOP_PANEL_DEFAULT_HEIGHT;
+  float scale;
+
+  priv = phosh_shell_get_instance_private (self);
+  monitor = phosh_shell_get_primary_monitor (self);
+  g_return_val_if_fail (monitor, panel_height);
+
+  scale = phosh_monitor_get_fractional_scale (monitor);
+  if (phosh_monitor_get_transform (monitor) == PHOSH_MONITOR_TRANSFORM_NORMAL)
+    panel_height += ceil (g_settings_get_uint (priv->settings, TOP_PANEL_OFFSET_KEY) / scale);
+
+  return panel_height;
+}
+
+
 static void
 on_primary_monitor_configured (PhoshShell *self, PhoshMonitor *monitor)
 {
@@ -282,6 +303,8 @@ on_primary_monitor_configured (PhoshShell *self, PhoshMonitor *monitor)
 
   phosh_shell_get_area (self, NULL, &height);
   phosh_layer_surface_set_size (PHOSH_LAYER_SURFACE (priv->top_panel), -1, height);
+
+  phosh_top_panel_set_height (PHOSH_TOP_PANEL (priv->top_panel), calc_top_panel_height (self));
 }
 
 
@@ -306,17 +329,19 @@ panels_create (PhoshShell *self)
   PhoshWayland *wl = phosh_wayland_get_default ();
   PhoshAppGrid *app_grid;
   guint32 top_layer;
+  int panel_height;
 
   monitor = phosh_shell_get_primary_monitor (self);
   g_return_if_fail (monitor);
 
+  panel_height = calc_top_panel_height (self);
   top_layer = priv->locked ? ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY : ZWLR_LAYER_SHELL_V1_LAYER_TOP;
   priv->top_panel = PHOSH_DRAG_SURFACE (phosh_top_panel_new (
                                           phosh_wayland_get_zwlr_layer_shell_v1 (wl),
                                           phosh_wayland_get_zphoc_layer_shell_effects_v1 (wl),
                                           monitor->wl_output,
                                           top_layer,
-                                          PHOSH_TOP_PANEL_DEFAULT_HEIGHT));
+                                          panel_height));
   gtk_widget_show (GTK_WIDGET (priv->top_panel));
 
   priv->home = PHOSH_DRAG_SURFACE (phosh_home_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),

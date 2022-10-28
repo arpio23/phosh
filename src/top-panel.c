@@ -71,6 +71,7 @@ typedef struct _PhoshTopPanel {
   GtkWidget *stack;
   GtkWidget *arrow;
   GtkWidget *box;            /* main content box */
+  GtkWidget *box_clock;
   GtkWidget *lbl_clock;      /* top-bar clock */
   GtkWidget *lbl_lang;
   GtkWidget *settings;       /* settings menu */
@@ -700,6 +701,7 @@ phosh_top_panel_class_init (PhoshTopPanelClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class,
                                                "/sm/puri/phosh/ui/top-panel.ui");
   gtk_widget_class_bind_template_child (widget_class, PhoshTopPanel, arrow);
+  gtk_widget_class_bind_template_child (widget_class, PhoshTopPanel, box_clock);
   gtk_widget_class_bind_template_child (widget_class, PhoshTopPanel, menu_power);
   gtk_widget_class_bind_template_child (widget_class, PhoshTopPanel, btn_power);
   gtk_widget_class_bind_template_child (widget_class, PhoshTopPanel, btn_lock);
@@ -817,6 +819,12 @@ phosh_top_panel_set_height (PhoshTopPanel *self, guint height)
 {
   g_return_if_fail (PHOSH_IS_TOP_PANEL (self));
 
+  gtk_widget_set_margin_top (GTK_WIDGET (self->stack),
+                             height - PHOSH_TOP_PANEL_DEFAULT_HEIGHT);
+  gtk_widget_set_margin_top (GTK_WIDGET (self->box_clock),
+                             height - PHOSH_TOP_PANEL_DEFAULT_HEIGHT);
+
+  phosh_drag_surface_set_exclusive (PHOSH_DRAG_SURFACE (self), height);
   self->panel_height = height;
 }
 
