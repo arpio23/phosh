@@ -1531,7 +1531,7 @@ phosh_shell_get_usable_area (PhoshShell *self, int *x, int *y, int *width, int *
 {
   PhoshMonitor *monitor;
   PhoshMonitorMode *mode;
-  int w, h, excluded;
+  int w, h, panel_height;
   float scale;
   PhoshShellPrivate *priv;
 
@@ -1552,26 +1552,25 @@ phosh_shell_get_usable_area (PhoshShell *self, int *x, int *y, int *width, int *
            mode->height,
            monitor->transform);
 
-  excluded = phosh_top_panel_get_height (PHOSH_TOP_PANEL (priv->top_panel))
-    - PHOSH_HOME_BUTTON_HEIGHT;
+  panel_height = phosh_top_panel_get_height (PHOSH_TOP_PANEL (priv->top_panel));
   switch (phosh_monitor_get_transform(monitor)) {
   case PHOSH_MONITOR_TRANSFORM_NORMAL:
   case PHOSH_MONITOR_TRANSFORM_180:
   case PHOSH_MONITOR_TRANSFORM_FLIPPED:
   case PHOSH_MONITOR_TRANSFORM_FLIPPED_180:
     w = mode->width / scale;
-    h = mode->height / scale - excluded;
+    h = mode->height / scale - panel_height - PHOSH_HOME_BUTTON_HEIGHT;
     break;
   default:
     w = mode->height / scale;
-    h = mode->width / scale - excluded;
+    h = mode->width / scale - panel_height - PHOSH_HOME_BUTTON_HEIGHT;
     break;
   }
 
   if (x)
     *x = 0;
   if (y)
-    *y = PHOSH_TOP_PANEL_HEIGHT;
+    *y = panel_height;
   if (width)
     *width = w;
   if (height)
@@ -1590,14 +1589,20 @@ void
 phosh_shell_get_area (PhoshShell *self, int *width, int *height)
 {
   int w, h;
+  PhoshShellPrivate *priv;
+  int panel_height;
+
+  g_return_if_fail (PHOSH_IS_SHELL (self));
+  priv = phosh_shell_get_instance_private (self);
 
   phosh_shell_get_usable_area (self, NULL, NULL, &w, &h);
 
   if (width)
     *width = w;
 
+  panel_height = phosh_top_panel_get_height (PHOSH_TOP_PANEL (priv->top_panel));
   if (height)
-    *height = h + PHOSH_TOP_PANEL_HEIGHT + PHOSH_HOME_BUTTON_HEIGHT;
+    *height = h + panel_height + PHOSH_HOME_BUTTON_HEIGHT;
 }
 
 
