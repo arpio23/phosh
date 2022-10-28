@@ -12,7 +12,7 @@
 
 G_DECLARE_FINAL_TYPE (PhoshTopPanel, phosh_top_panel, PHOSH, TOP_PANEL, PhoshDragSurface)
 
-#define PHOSH_TOP_PANEL_HEIGHT 32
+#define PHOSH_TOP_PANEL_DEFAULT_HEIGHT 32
 
 /**
  * PhoshTopPanelState:
@@ -33,4 +33,5 @@ void               phosh_top_panel_toggle_fold (PhoshTopPanel *self);
 void               phosh_top_panel_fold (PhoshTopPanel *self);
 void               phosh_top_panel_unfold (PhoshTopPanel *self);
 PhoshTopPanelState phosh_top_panel_get_state (PhoshTopPanel *self);
+void               phosh_top_panel_set_height (PhoshTopPanel *self, guint height);
 guint              phosh_top_panel_get_height (PhoshTopPanel *self);

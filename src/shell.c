@@ -314,7 +314,7 @@ panels_create (PhoshShell *self)
                                           phosh_wayland_get_zphoc_layer_shell_effects_v1 (wl),
                                           monitor->wl_output,
                                           top_layer,
-                                          PHOSH_TOP_PANEL_HEIGHT));
+                                          PHOSH_TOP_PANEL_DEFAULT_HEIGHT));
   gtk_widget_show (GTK_WIDGET (priv->top_panel));
 
   priv->home = PHOSH_DRAG_SURFACE (phosh_home_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),

@@ -43,6 +43,7 @@
 enum {
   PROP_0,
   PROP_ON_LOCKSCREEN,
+  PROP_PANEL_HEIGHT,
   PROP_LAST_PROP,
 };
 static GParamSpec *props[PROP_LAST_PROP];
@@ -58,6 +59,7 @@ typedef struct _PhoshTopPanel {
 
   PhoshTopPanelState state;
   gboolean           on_lockscreen;
+  guint              panel_height;
 
   /* Top row above settings */
   GtkWidget *btn_power;
@@ -104,6 +106,9 @@ phosh_top_panel_set_property (GObject *object,
   case PROP_ON_LOCKSCREEN:
     self->on_lockscreen = g_value_get_boolean (value);
     break;
+  case PROP_PANEL_HEIGHT:
+    phosh_top_panel_set_height (self, g_value_get_uint (value));
+    break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     break;
@@ -122,6 +127,9 @@ phosh_top_panel_get_property (GObject *object,
   switch (property_id) {
   case PROP_ON_LOCKSCREEN:
     g_value_set_boolean (value, self->on_lockscreen);
+    break;
+  case PROP_PANEL_HEIGHT:
+    g_value_set_uint (value, phosh_top_panel_get_height (self));
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -671,6 +679,16 @@ phosh_top_panel_class_init (PhoshTopPanelClass *klass)
       FALSE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+  /* PhoshTopPanel:panel-height
+   *
+   * The top panels height
+   */
+  props[PROP_PANEL_HEIGHT] =
+    g_param_spec_uint (
+      "panel-height", "", "",
+      PHOSH_TOP_PANEL_DEFAULT_HEIGHT, G_MAXUINT, PHOSH_TOP_PANEL_DEFAULT_HEIGHT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
 
   signals[ACTIVATED] = g_signal_new ("activated",
@@ -704,6 +722,7 @@ phosh_top_panel_init (PhoshTopPanel *self)
 {
   gtk_widget_init_template (GTK_WIDGET (self));
 
+  self->panel_height = PHOSH_TOP_PANEL_DEFAULT_HEIGHT;
   self->state = PHOSH_TOP_PANEL_STATE_FOLDED;
   self->kb_settings = g_settings_new (KEYBINDINGS_SCHEMA_ID);
   g_signal_connect (self, "configure-event", G_CALLBACK (on_configure_event), NULL);
@@ -732,6 +751,8 @@ phosh_top_panel_new (struct zwlr_layer_shell_v1          *layer_shell,
                        "layer-shell-effects", layer_shell_effects,
                        "exclusive", height,
                        "threshold", PHOSH_TOP_PANEL_DRAG_THRESHOLD,
+                       /* top-panel */
+                       "panel-height", height,
                        NULL);
 }
 
@@ -783,6 +804,23 @@ phosh_top_panel_get_state (PhoshTopPanel *self)
   return self->state;
 }
 
+
+/**
+ * phosh_top_panel_set_height:
+ * @self: The panel
+ * @height: The hight in pixels
+ *
+ * Set the top panels height
+ */
+void
+phosh_top_panel_set_height (PhoshTopPanel *self, guint height)
+{
+  g_return_if_fail (PHOSH_IS_TOP_PANEL (self));
+
+  self->panel_height = height;
+}
+
+
 /**
  * phosh_top_panel_get_height:
  * @self: The panel
@@ -794,5 +832,5 @@ phosh_top_panel_get_height (PhoshTopPanel *self)
 {
   g_return_val_if_fail (PHOSH_IS_TOP_PANEL (self), PHOSH_TOP_PANEL_STATE_FOLDED);
 
-  return PHOSH_TOP_PANEL_HEIGHT;
+  return self->panel_height;
 }
