@@ -419,8 +419,10 @@ phosh_top_panel_dragged (PhoshDragSurface *self, int margin)
 {
   PhoshTopPanel *panel = PHOSH_TOP_PANEL (self);
   int width, height;
+  int panel_height = phosh_top_panel_get_height (PHOSH_TOP_PANEL (self));
+
   gtk_window_get_size (GTK_WINDOW (self), &width, &height);
-  phosh_arrow_set_progress (PHOSH_ARROW (panel->arrow), -margin / (double)(height - PHOSH_TOP_PANEL_HEIGHT));
+  phosh_arrow_set_progress (PHOSH_ARROW (panel->arrow), -margin / (double)(height - panel_height));
   g_debug ("Margin: %d", margin);
 }
 
@@ -596,9 +598,9 @@ phosh_top_panel_dispose (GObject *object)
 
 
 static int
-get_margin (gint height)
+get_margin (PhoshTopPanel *self, gint height)
 {
-  return (-1 * height) + PHOSH_TOP_PANEL_HEIGHT;
+  return (-1 * height) + phosh_top_panel_get_height (self);
 }
 
 
@@ -607,7 +609,7 @@ on_configure_event (PhoshTopPanel *self, GdkEventConfigure *event)
 {
   guint margin;
 
-  margin = get_margin (event->height);
+  margin = get_margin (self, event->height);
 
   /* ignore popovers like the power menu */
   if (gtk_widget_get_window (GTK_WIDGET (self)) != event->window)
