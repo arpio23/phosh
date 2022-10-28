@@ -12,8 +12,6 @@
 
 #define G_LOG_DOMAIN "phosh-shell"
 
-#define WWAN_BACKEND_KEY "wwan-backend"
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -84,6 +82,8 @@
 #include "wwan/phosh-wwan-ofono.h"
 #include "wwan/phosh-wwan-mm.h"
 #include "wwan/phosh-wwan-backend.h"
+
+#define WWAN_BACKEND_KEY "wwan-backend"
 
 /**
  * SECTION:shell
