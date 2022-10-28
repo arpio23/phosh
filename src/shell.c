@@ -303,20 +303,18 @@ panels_create (PhoshShell *self)
   PhoshMonitor *monitor;
   PhoshWayland *wl = phosh_wayland_get_default ();
   PhoshAppGrid *app_grid;
-  int height;
   guint32 top_layer;
 
   monitor = phosh_shell_get_primary_monitor (self);
   g_return_if_fail (monitor);
 
   top_layer = priv->locked ? ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY : ZWLR_LAYER_SHELL_V1_LAYER_TOP;
-  phosh_shell_get_area (self, NULL, &height);
   priv->top_panel = PHOSH_DRAG_SURFACE (phosh_top_panel_new (
                                           phosh_wayland_get_zwlr_layer_shell_v1 (wl),
                                           phosh_wayland_get_zphoc_layer_shell_effects_v1 (wl),
                                           monitor->wl_output,
                                           top_layer,
-                                          height));
+                                          PHOSH_TOP_PANEL_HEIGHT));
   gtk_widget_show (GTK_WIDGET (priv->top_panel));
 
   priv->home = PHOSH_DRAG_SURFACE (phosh_home_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
@@ -1533,10 +1531,12 @@ phosh_shell_get_usable_area (PhoshShell *self, int *x, int *y, int *width, int *
 {
   PhoshMonitor *monitor;
   PhoshMonitorMode *mode;
-  int w, h;
+  int w, h, excluded;
   float scale;
+  PhoshShellPrivate *priv;
 
   g_return_if_fail (PHOSH_IS_SHELL (self));
+  priv = phosh_shell_get_instance_private (self);
 
   monitor = phosh_shell_get_primary_monitor (self);
   g_return_if_fail(monitor);
@@ -1552,17 +1552,19 @@ phosh_shell_get_usable_area (PhoshShell *self, int *x, int *y, int *width, int *
            mode->height,
            monitor->transform);
 
+  excluded = phosh_top_panel_get_height (PHOSH_TOP_PANEL (priv->top_panel))
+    - PHOSH_HOME_BUTTON_HEIGHT;
   switch (phosh_monitor_get_transform(monitor)) {
   case PHOSH_MONITOR_TRANSFORM_NORMAL:
   case PHOSH_MONITOR_TRANSFORM_180:
   case PHOSH_MONITOR_TRANSFORM_FLIPPED:
   case PHOSH_MONITOR_TRANSFORM_FLIPPED_180:
     w = mode->width / scale;
-    h = mode->height / scale - PHOSH_TOP_PANEL_HEIGHT - PHOSH_HOME_BUTTON_HEIGHT;
+    h = mode->height / scale - excluded;
     break;
   default:
     w = mode->height / scale;
-    h = mode->width / scale - PHOSH_TOP_PANEL_HEIGHT - PHOSH_HOME_BUTTON_HEIGHT;
+    h = mode->width / scale - excluded;
     break;
   }
 
