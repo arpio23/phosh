@@ -47,7 +47,7 @@ jobs:
                                                     apt update && 
                                                     set DEB_BUILD_OPTIONS=nocheck && 
                                                     mk-build-deps --install --tool='apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes' debian/control && 
-                                                    rm -f phosh-build-deps_0.22.0_arm64.* && 
+                                                    rm -f phosh-build-deps_0.22.0-1_arm64.* && 
                                                     dpkg-buildpackage -us -uc -b && 
                                                     cp ../*.deb out/"
           
