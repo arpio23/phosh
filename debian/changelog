@@ -1,3 +1,10 @@
+phosh (0.22.0-1) experimental; urgency=medium
+
+  * Cherrypick commits form Merge request https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/1158
+  * Add workflow file
+
+ -- arpio23 <alex@familyrutz.com>  Fri, 16 Dec 2022 14:36:20 -0700
+
 phosh (0.22.0) experimental; urgency=medium
 
   [ Guido Günther ]
