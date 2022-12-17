@@ -1,3 +1,10 @@
+phosh (0.22.0-2) experimental; urgency=medium
+
+  * Use panel offset on any rotation
+  * Update work.yaml file
+
+ -- arpio23 <alex@familyrutz.com>  Fri, 16 Dec 2022 22:10:20 -0700
+
 phosh (0.22.0-1) experimental; urgency=medium
 
   * Cherrypick commits form Merge request https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/1158
