@@ -284,8 +284,8 @@ calc_top_panel_height (PhoshShell *self)
   g_return_val_if_fail (monitor, panel_height);
 
   scale = phosh_monitor_get_fractional_scale (monitor);
-  if (phosh_monitor_get_transform (monitor) == PHOSH_MONITOR_TRANSFORM_NORMAL)
-    panel_height += ceil (g_settings_get_uint (priv->settings, TOP_PANEL_OFFSET_KEY) / scale);
+  
+  panel_height += ceil (g_settings_get_uint (priv->settings, TOP_PANEL_OFFSET_KEY) / scale);
 
   return panel_height;
 }
