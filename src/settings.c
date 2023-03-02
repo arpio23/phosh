@@ -63,6 +63,8 @@ typedef struct _PhoshSettings
   gint       drag_handle_offset;
   guint      debounce_handle;
 
+  GtkWidget *scrolled_window;
+  GtkWidget *box_sliders;
   GtkWidget *box_settings;
   GtkWidget *quick_settings;
   GtkWidget *scale_brightness;
@@ -139,37 +141,34 @@ phosh_settings_get_property (GObject *object,
 static void
 calc_drag_handle_offset (PhoshSettings *self)
 {
-  gint h;
-  gboolean done = FALSE;
-  const gchar *stack_child;
-  GtkWidget *widget = NULL;
+  int h = 0;
+  int box_height, sw_height;
 
-  stack_child = gtk_stack_get_visible_child_name (GTK_STACK (self->stack_notifications));
-
-  if (self->on_lockscreen) {
-    /* On the lock screen the space below the sliders is fine */
-    widget = self->box_bottom_half;
-  } else if (g_strcmp0 (stack_child, STACK_CHILD_NO_NOTIFICATIONS) == 0) {
-    /* Without notifications the notification box is fine */
-    widget = self->stack_notifications;
-  }
-
-  /* Otherwise assume the whole area shouldn't be draggable */
-  if (!widget)
+  h = gtk_widget_get_allocated_height (GTK_WIDGET (self));
+  /* On the lock screen the whole surface is fine */
+  if (self->on_lockscreen)
     goto out;
 
-  done = gtk_widget_translate_coordinates (widget,
-                                           GTK_WIDGET (self),
-                                           0, 0, NULL, &h);
- out:
-  if (!done)
-    h = gtk_widget_get_allocated_height (GTK_WIDGET (self));
+  box_height = gtk_widget_get_allocated_height (self->box_settings);
+  sw_height = gtk_widget_get_allocated_height (self->scrolled_window);
+  if (box_height > sw_height)
+    h = 0; /* Don't enlarge drag handle if box needs scrolling */
 
+ out:
   if (self->drag_handle_offset == h)
     return;
 
   self->drag_handle_offset = h;
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_DRAG_HANDLE_OFFSET]);
+}
+
+
+static void
+on_size_allocate (PhoshSettings *self)
+{
+  calc_drag_handle_offset (self);
+
+  return;
 }
 
 
@@ -829,8 +828,8 @@ setup_volume_bar (PhoshSettings *self)
   gtk_widget_set_sensitive (self->output_vol_bar, TRUE);
   gtk_widget_show (self->output_vol_bar);
 
-  gtk_box_pack_start (GTK_BOX (self->box_settings), self->output_vol_bar, FALSE, FALSE, 0);
-  gtk_box_reorder_child (GTK_BOX (self->box_settings), self->output_vol_bar, 1);
+  gtk_box_pack_start (GTK_BOX (self->box_sliders), self->output_vol_bar, FALSE, FALSE, 0);
+  gtk_box_reorder_child (GTK_BOX (self->box_sliders), self->output_vol_bar, 2);
 
   self->phone_vol_bar = gvc_channel_bar_new_with_icon ("call-start-symbolic");
   gtk_widget_set_sensitive (self->phone_vol_bar, TRUE);
@@ -969,8 +968,8 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
 
   /* PhoshSettings:handle-offset:
    *
-   * The offset from the top of the widget where it's safe to start
-   * dragging. Seep hosh_settings_get_drag_drag_handle_offset().
+   * The offset from the bottom of the widget where it's safe to start
+   * dragging. See phosh_settings_get_drag_drag_handle_offset().
    */
   props[PROP_DRAG_HANDLE_OFFSET] =
     g_param_spec_int (
@@ -988,6 +987,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
 
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, box_bottom_half);
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, box_notifications);
+  gtk_widget_class_bind_template_child (widget_class, PhoshSettings, box_sliders);
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, box_settings);
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, list_notifications);
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, media_player);
@@ -995,6 +995,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, scale_brightness);
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, scale_torch);
   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, stack_notifications);
+  gtk_widget_class_bind_template_child (widget_class, PhoshSettings, scrolled_window);
 
   gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
   gtk_widget_class_bind_template_callback (widget_class, bt_setting_clicked_cb);
@@ -1024,6 +1025,8 @@ static void
 phosh_settings_init (PhoshSettings *self)
 {
   gtk_widget_init_template (GTK_WIDGET (self));
+
+  g_signal_connect (self, "size-allocate", G_CALLBACK (on_size_allocate), NULL);
 }
 
 
